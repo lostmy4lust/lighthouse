@@ -62,7 +62,7 @@ class LayoutShifts extends Audit {
     const SourceMaps = artifacts.SourceMaps;
     const traceEngineResult =
       await TraceEngineResult.request({trace, settings, SourceMaps}, context);
-    const clusters = traceEngineResult.data.LayoutShifts.clusters ?? [];
+    const clusters = traceEngineResult.parsedTrace.LayoutShifts.clusters ?? [];
     const {cumulativeLayoutShift: clsSavings, impactByNodeId} =
       await CumulativeLayoutShiftComputed.request(trace, context);
     const traceElements = artifacts.TraceElements
@@ -89,7 +89,7 @@ class LayoutShifts extends Audit {
       .slice(0, MAX_LAYOUT_SHIFTS);
     for (const event of topLayoutShiftEvents) {
       const biggestImpactNodeId = TraceElements.getBiggestImpactNodeForShiftEvent(
-        event.args.data.impacted_nodes || [], impactByNodeId, event);
+        event.args.data.impacted_nodes || [], impactByNodeId);
       const biggestImpactElement = traceElements.find(t => t.nodeId === biggestImpactNodeId);
 
       // Turn root causes into sub-items.
@@ -105,15 +105,16 @@ class LayoutShifts extends Audit {
             cause: str_(UIStrings.rootCauseUnsizedMedia),
           });
         }
-        for (const request of rootCauses.fontRequests) {
+        for (const request of rootCauses.webFonts) {
           const url = request.args.data.url;
           subItems.push({
             extra: {type: 'url', value: url},
             cause: str_(UIStrings.rootCauseFontChanges),
           });
         }
-        if (rootCauses.iframeIds.length) {
+        for (const iframe of rootCauses.iframes) {
           subItems.push({
+            extra: iframe.url ? {type: 'url', value: iframe.url} : undefined,
             cause: str_(UIStrings.rootCauseInjectedIframe),
           });
         }

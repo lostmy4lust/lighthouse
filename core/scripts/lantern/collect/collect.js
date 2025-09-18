@@ -12,8 +12,6 @@ import fs from 'fs';
 import {execFile} from 'child_process';
 import {promisify} from 'util';
 
-import fetch from 'node-fetch';
-
 import defaultTestUrls from './urls.js';
 import * as common from './common.js';
 import {LH_ROOT} from '../../../../shared/root.js';
@@ -123,7 +121,6 @@ async function runForWpt(url) {
 
   // Poll for the results every x seconds, where x = position in queue.
   let lhr;
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const responseJson = await fetchString(jsonUrl);
     const response = JSON.parse(responseJson);
@@ -227,7 +224,6 @@ async function main() {
     let unthrottledDone = false;
 
     // The closure this makes is too convenient to decompose.
-    // eslint-disable-next-line no-inner-declarations
     function updateProgress() {
       const index = TEST_URLS.indexOf(url);
       log.progress([

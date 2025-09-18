@@ -94,7 +94,7 @@ describe('Navigation', function() {
     // 1 refresh after auditing to reset state
     assert.strictEqual(numNavigations, 5);
 
-    assert.strictEqual(lhr.lighthouseVersion, '12.6.0');
+    assert.strictEqual(lhr.lighthouseVersion, '12.8.2');
     assert.match(lhr.finalUrl, /^https:\/\/localhost:[0-9]+\/test\/e2e\/resources\/lighthouse\/hello.html/);
 
     assert.strictEqual(lhr.configSettings.throttlingMethod, 'simulate');
@@ -120,7 +120,7 @@ describe('Navigation', function() {
     });
 
     const {auditResults, erroredAudits, failedAudits} = getAuditsBreakdown(lhr, ['max-potential-fid']);
-    assert.strictEqual(auditResults.length, 175);
+    assert.strictEqual(auditResults.length, 176);
     assert.deepStrictEqual(erroredAudits, []);
     assert.deepStrictEqual(failedAudits.map(audit => audit.id), [
       'document-title',
@@ -145,6 +145,9 @@ describe('Navigation', function() {
     assert.strictEqual(selectedTabText, 'Performance');
 
     await navigateToLighthouseTab();
+
+    // TODO: currently the "LighthouseReportRenderer.linkifyNodeDetails" doesn't run for swappable sections.
+    await reportEl.$eval('.lh-button-insight-toggle', el => (el as HTMLElement).click());
 
     // Test element link behavior
     const lcpElementAudit = await waitForElementWithTextContent('Largest Contentful Paint element', reportEl);
@@ -202,7 +205,7 @@ describe('Navigation', function() {
     ];
 
     const {auditResults, erroredAudits, failedAudits} = getAuditsBreakdown(lhr, flakyAudits);
-    assert.strictEqual(auditResults.length, 175);
+    assert.strictEqual(auditResults.length, 176);
     assert.deepStrictEqual(erroredAudits, []);
     assert.deepStrictEqual(failedAudits.map(audit => audit.id), [
       'document-title',

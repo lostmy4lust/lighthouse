@@ -164,7 +164,7 @@ class Audit {
     if (results.length === 0) {
       return {
         type: 'table',
-        headings: [],
+        headings,
         items: [],
         summary,
       };
@@ -174,7 +174,7 @@ class Audit {
 
     return {
       type: 'table',
-      headings: headings,
+      headings,
       items: results,
       summary,
       sortedBy,
@@ -191,6 +191,21 @@ class Audit {
     return {
       type: 'list',
       items: items,
+    };
+  }
+
+  /**
+   * @param {LH.IcuMessage | string=} title
+   * @param {LH.IcuMessage | string=} description
+   * @param {LH.Audit.Details.ListableDetail} value
+   * @return {LH.Audit.Details.ListSectionItem}
+   */
+  static makeListDetailSectionItem(value, title, description) {
+    return {
+      type: 'list-section',
+      title,
+      description,
+      value,
     };
   }
 

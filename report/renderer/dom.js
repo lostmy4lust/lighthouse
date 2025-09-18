@@ -30,6 +30,8 @@ export class DOM {
     this.rootEl = rootEl;
     /** @type {WeakMap<Element, Element>} */
     this._swappableSections = new WeakMap();
+    this._onSwap = () => {};
+    this._onSwapHook = () => {};
   }
 
   /**
@@ -354,5 +356,9 @@ export class DOM {
 
     parent.insertBefore(newSection, section);
     section.remove();
+    this._onSwap();
+    if (this._onSwapHook) {
+      this._onSwapHook();
+    }
   }
 }

@@ -6,7 +6,6 @@
 'use strict';
 
 import fs from 'fs';
-import fetch from 'node-fetch';
 import { LH_ROOT } from '../../shared/root.js';
 
 const inspectorIssuesGathererPath = LH_ROOT +
@@ -41,6 +40,7 @@ Array [
   "cookieIssueDetails",
   "corsIssueDetails",
   "deprecationIssueDetails",
+  "elementAccessibilityIssueDetails",
   "federatedAuthRequestIssueDetails",
   "federatedAuthUserInfoRequestIssueDetails",
   "genericIssueDetails",
@@ -51,11 +51,12 @@ Array [
   "partitioningBlobURLIssueDetails",
   "propertyRuleIssueDetails",
   "quirksModeIssueDetails",
-  "selectElementAccessibilityIssueDetails",
   "sharedArrayBufferIssueDetails",
   "sharedDictionaryIssueDetails",
   "sriMessageSignatureIssueDetails",
   "stylesheetLoadingIssueDetails",
+  "unencodedDigestIssueDetails",
+  "userReidentificationIssueDetails",
 ]
 `);
   });

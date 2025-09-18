@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/* eslint-disable no-console, max-len */
+/* eslint-disable max-len */
 
 import fs from 'fs';
 import path from 'path';
@@ -750,6 +750,7 @@ function checkKnownFixedCollisions(strings) {
       'Severity',
       'Severity',
       'Severity',
+      'Severity',
       'Total',
       'Total',
       'Use $MARKDOWN_SNIPPET_0$ to detect unused JavaScript code. $LINK_START_0$Learn more$LINK_END_0$',
@@ -824,7 +825,8 @@ function injectTraceEngineStrings() {
         .replace(`{imageOrientation: 'from-image'}`, `\\\\{imageOrientation: 'from-image'\\\\}`)
         .replace(`{imageOrientation: ''from-image''}`, `\\\\{imageOrientation: ''from-image''\\\\}`)
         .replace(`{imageOrientation: "from-image"}`, `\\\\{imageOrientation: "from-image"\\\\}`)
-        .replace(`{imageOrientation: 'from-image'\\}`, `\\\\{imageOrientation: 'from-image'\\\\}`);
+        .replace(`{imageOrientation: 'from-image'\\}`, `\\\\{imageOrientation: 'from-image'\\\\}`)
+        .replace(`'{'imageOrientation: 'from-image'}'`, `\\\\{imageOrientation: 'from-image'\\\\}`);
       strings[lhKey] = value;
     }
 

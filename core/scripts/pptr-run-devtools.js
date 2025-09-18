@@ -101,7 +101,6 @@ async function evaluateInSession(session, fn, deps) {
  */
 async function waitForFunction(session, fn, deps) {
   let iterations = 0;
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
       return await evaluateInSession(session, fn, deps);
@@ -394,7 +393,6 @@ async function main() {
   // Create output directory.
   if (fs.existsSync(outputDir)) {
     if (fs.readdirSync(outputDir).length) {
-      // eslint-disable-next-line no-console
       console.warn('WARNING: Output directory is not empty.');
     }
   } else {

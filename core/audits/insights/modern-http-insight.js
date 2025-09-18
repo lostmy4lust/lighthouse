@@ -37,14 +37,12 @@ class ModernHTTPInsight extends Audit {
     return adaptInsightToAuditProduct(artifacts, context, 'ModernHTTP', (insight) => {
       /** @type {LH.Audit.Details.Table['headings']} */
       const headings = [
-        /* eslint-disable max-len */
         {key: 'url', valueType: 'url', label: str_(i18n.UIStrings.columnURL)},
         {key: 'protocol', valueType: 'text', label: str_(UIStrings.protocol)},
-        /* eslint-enable max-len */
       ];
       /** @type {LH.Audit.Details.Table['items']} */
       const items =
-        insight.requests.map(r => ({url: r.args.data.url, protocol: r.args.data.protocol}));
+        insight.http1Requests.map(r => ({url: r.args.data.url, protocol: r.args.data.protocol}));
       return Audit.makeTableDetails(headings, items);
     });
   }

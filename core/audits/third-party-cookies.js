@@ -11,7 +11,6 @@
 import {Audit} from './audit.js';
 import * as i18n from '../lib/i18n/i18n.js';
 
-/* eslint-disable max-len */
 const UIStrings = {
   /** Title of a Lighthouse audit that provides detail on the use of third party cookies. This descriptive title is shown to users when the page does not use third party cookies. */
   title: 'Avoids third-party cookies',
@@ -25,7 +24,6 @@ const UIStrings = {
     other {# cookies found}
     }`,
 };
-/* eslint-enable max-len */
 
 const str_ = i18n.createIcuMessageFn(import.meta.url, UIStrings);
 
@@ -68,7 +66,7 @@ class ThirdPartyCookies extends Audit {
 
     /** @type {LH.Audit.Details.TableItem[]} */
     const items = [];
-    for (const issue of artifacts.InspectorIssues.cookieIssue) {
+    for (const issue of artifacts.InspectorIssues.cookieIssue ?? []) {
       const isPhaseoutWarn = issue.cookieWarningReasons.includes('WarnThirdPartyPhaseout');
       const isPhaseoutExclude = issue.cookieExclusionReasons.includes('ExcludeThirdPartyPhaseout');
       if (!isPhaseoutWarn && !isPhaseoutExclude) continue;

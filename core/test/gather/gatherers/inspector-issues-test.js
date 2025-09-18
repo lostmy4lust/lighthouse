@@ -250,13 +250,14 @@ describe('getArtifact', () => {
       partitioningBlobURLIssue: [],
       propertyRuleIssue: [],
       quirksModeIssue: [],
-      selectElementAccessibilityIssue: [],
+      elementAccessibilityIssue: [],
       sharedArrayBufferIssue: [],
       sharedDictionaryIssue: [],
       federatedAuthRequestIssue: [],
       sriMessageSignatureIssue: [],
       stylesheetLoadingIssue: [],
       federatedAuthUserInfoRequestIssue: [],
+      userReidentificationIssue: [],
     });
   });
 
@@ -319,13 +320,14 @@ describe('getArtifact', () => {
       partitioningBlobURLIssue: [],
       propertyRuleIssue: [],
       quirksModeIssue: [],
-      selectElementAccessibilityIssue: [],
+      elementAccessibilityIssue: [],
       sharedArrayBufferIssue: [],
       sharedDictionaryIssue: [],
       federatedAuthRequestIssue: [],
       sriMessageSignatureIssue: [],
       stylesheetLoadingIssue: [],
       federatedAuthUserInfoRequestIssue: [],
+      userReidentificationIssue: [],
     });
   });
 });

@@ -19,12 +19,10 @@ const MAX_LAYOUT_SHIFTS_PER_CLUSTER = 5;
 // eslint-disable-next-line max-len
 const insightStr_ = i18n.createIcuMessageFn('node_modules/@paulirish/trace_engine/models/trace/insights/CLSCulprits.js', InsightUIStrings);
 
-/* eslint-disable max-len */
 const UIStrings = {
   /** Label for a column in a data table; entries in this column will be a number representing how large the layout shift was. */
   columnScore: 'Layout shift score',
 };
-/* eslint-enable max-len */
 
 const str_ = i18n.createIcuMessageFn(import.meta.url, UIStrings);
 
@@ -61,18 +59,19 @@ class CLSCulpritsInsight extends Audit {
     for (const unsizedImage of culprits.unsizedImages) {
       subItems.push({
         extra: makeNodeItemForNodeId(TraceElements, unsizedImage.backendNodeId),
-        cause: insightStr_(InsightUIStrings.unsizedImages),
+        cause: insightStr_(InsightUIStrings.unsizedImage),
       });
     }
-    for (const request of culprits.fontRequests) {
+    for (const request of culprits.webFonts) {
       const url = request.args.data.url;
       subItems.push({
         extra: {type: 'url', value: url},
-        cause: insightStr_(InsightUIStrings.fontRequest),
+        cause: insightStr_(InsightUIStrings.webFont),
       });
     }
-    if (culprits.iframeIds.length) {
+    for (const iframe of culprits.iframes) {
       subItems.push({
+        extra: iframe.url ? {type: 'url', value: iframe.url} : undefined,
         cause: insightStr_(InsightUIStrings.injectedIframe),
       });
     }
@@ -114,7 +113,7 @@ class CLSCulpritsInsight extends Audit {
         /** @type {LH.Audit.Details.Table['items']} */
         const items = events.map(event => {
           const biggestImpactNodeId = TraceElements.getBiggestImpactNodeForShiftEvent(
-            event.args.data.impacted_nodes || [], impactByNodeId, event);
+            event.args.data.impacted_nodes || [], impactByNodeId);
           return {
             node: makeNodeItemForNodeId(artifacts.TraceElements, biggestImpactNodeId),
             score: event.args.data?.weighted_score_delta,

@@ -16,7 +16,7 @@ const str_ = i18n.createIcuMessageFn(import.meta.url, {});
 /**
  * @param {LH.Artifacts} artifacts
  * @param {LH.Audit.Context} context
- * @return {Promise<{insights: import('@paulirish/trace_engine/models/trace/insights/types.js').InsightSet|undefined, parsedTrace: LH.Artifacts.TraceEngineResult['data']}>}
+ * @return {Promise<{insights: import('@paulirish/trace_engine/models/trace/insights/types.js').InsightSet|undefined, parsedTrace: LH.Artifacts.TraceEngineResult['parsedTrace']}>}
  */
 async function getInsightSet(artifacts, context) {
   const settings = context.settings;
@@ -29,20 +29,20 @@ async function getInsightSet(artifacts, context) {
   const key = navigationId ?? NO_NAVIGATION;
   const insights = traceEngineResult.insights.get(key);
 
-  return {insights, parsedTrace: traceEngineResult.data};
+  return {insights, parsedTrace: traceEngineResult.parsedTrace};
 }
 
 /**
  * @typedef CreateDetailsExtras
  * @property {import('@paulirish/trace_engine/models/trace/insights/types.js').InsightSet} insights
- * @property {LH.Artifacts.TraceEngineResult['data']} parsedTrace
+ * @property {LH.Artifacts.TraceEngineResult['parsedTrace']} parsedTrace
  */
 
 /**
  * @param {LH.Artifacts} artifacts
  * @param {LH.Audit.Context} context
  * @param {T} insightName
- * @param {(insight: import('@paulirish/trace_engine/models/trace/insights/types.js').InsightModels[T], extras: CreateDetailsExtras) => LH.Audit.Details|undefined} createDetails
+ * @param {(insight: import('@paulirish/trace_engine/models/trace/insights/types.js').InsightModels[T], extras: CreateDetailsExtras) => {details: LH.Audit.Details, warnings: Array<string | LH.IcuMessage>}|LH.Audit.Details|undefined} createDetails
  * @template {keyof import('@paulirish/trace_engine/models/trace/insights/types.js').InsightModelsType} T
  * @return {Promise<LH.Audit.Product>}
  */
@@ -64,14 +64,26 @@ async function adaptInsightToAuditProduct(artifacts, context, insightName, creat
     };
   }
 
-  const details = createDetails(insight, {
+  const cbResult = createDetails(insight, {
     parsedTrace,
     insights,
   });
-  if (!details || (details.type === 'table' && details.headings.length === 0)) {
+
+  const warnings = [...insight.warnings ?? []];
+
+  let details;
+  if (cbResult && 'warnings' in cbResult) {
+    details = cbResult.details;
+    warnings.push(...cbResult.warnings);
+  } else {
+    details = cbResult;
+  }
+
+  if (!details) {
     return {
       scoreDisplayMode: Audit.SCORING_MODES.NOT_APPLICABLE,
       score: null,
+      details,
     };
   }
 
@@ -80,6 +92,17 @@ async function adaptInsightToAuditProduct(artifacts, context, insightName, creat
       details.debugData = {type: 'debugdata'};
     }
     details.debugData.wastedBytes = insight.wastedBytes;
+  }
+
+  // TODO: FontDisplay insight (and maybe others) can return -Infinity savings when
+  // passing. That's weird. For now, just delete those.
+  if (insight.metricSavings) {
+    for (const [metric, value] of Object.entries(insight.metricSavings)) {
+      if (!Number.isFinite(value)) {
+        // @ts-expect-error
+        delete insight.metricSavings[metric];
+      }
+    }
   }
 
   // This hack is to add metric adorners if an insight category links it to a metric,
@@ -96,8 +119,37 @@ async function adaptInsightToAuditProduct(artifacts, context, insightName, creat
   // TODO: consider adding a `estimatedSavingsText` to InsightModel, which can capture
   // the exact i18n string used by RPP; and include the same est. timing savings.
   let displayValue;
+
   if (insight.wastedBytes) {
     displayValue = str_(i18n.UIStrings.displayValueByteSavings, {wastedBytes: insight.wastedBytes});
+  } else {
+    let wastedMs;
+
+    switch (insight.insightKey) {
+      case 'DocumentLatency':
+      case 'DuplicatedJavaScript':
+      case 'FontDisplay':
+      case 'LegacyJavaScript':
+      case 'RenderBlocking': {
+        wastedMs = metricSavings?.FCP;
+        break;
+      }
+
+      case 'LCPDiscovery':
+      case 'ModernHTTP': {
+        wastedMs = metricSavings?.LCP;
+        break;
+      }
+
+      case 'Viewport': {
+        wastedMs = metricSavings?.INP;
+        break;
+      }
+    }
+
+    if (wastedMs) {
+      displayValue = str_(i18n.UIStrings.displayValueMsSavings, {wastedMs});
+    }
   }
 
   let score;
@@ -115,7 +167,7 @@ async function adaptInsightToAuditProduct(artifacts, context, insightName, creat
     scoreDisplayMode,
     score,
     metricSavings,
-    warnings: insight.warnings,
+    warnings: warnings.length ? warnings : undefined,
     displayValue,
     details,
   };
